@@ -61,7 +61,7 @@ app.route("/api/notes")
 
         notes = notes.concat(note)
 
-        res.json(notes)
+        res.json(note)
     })
 
 app.route("/api/notes/:id")
