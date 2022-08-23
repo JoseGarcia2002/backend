@@ -73,9 +73,19 @@ app.route("/api/notes/:id")
     .get((req, res) => {
         const id = req.params.id 
 
-        Note.findById(id).then(note => {
-            res.json(note)
-        })
+        Note.findById(id)
+            .then(note => {
+                if (note) {
+                    res.json(note)
+                }
+                else {
+                    res.status(404).end()
+                }
+            })
+            .catch(err => {
+                console.log(err)
+                res.status(400).send({error:"malformatted id"})
+            })
     })
     .delete((req, res) => {
         const id = Number(req.params.id)
