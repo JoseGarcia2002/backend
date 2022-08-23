@@ -5,9 +5,9 @@ const Note = require("./models/note")
 
 const app = express()
 
+app.use(express.static("build"))
 app.use(express.json())
 app.use(cors())
-app.use(express.static("build"))
 
 const generateId = () => {
     const maxId = notes.length > 0
@@ -70,7 +70,7 @@ app.route("/api/notes")
     })
 
 app.route("/api/notes/:id")
-    .get((req, res) => {
+    .get((req, res, next) => {
         const id = req.params.id 
 
         Note.findById(id)
@@ -83,8 +83,8 @@ app.route("/api/notes/:id")
                 }
             })
             .catch(err => {
-                console.log(err)
-                res.status(400).send({error:"malformatted id"})
+                console.log(err.message)
+                next(err)
             })
     })
     .delete((req, res) => {
@@ -93,6 +93,15 @@ app.route("/api/notes/:id")
 
         res.status(204).end()
     })
+
+const errorHandler = (err, req, res, next) => {
+    if (err.name === "CastError") {
+        return res.status(400).send({error: "malformatted id "})
+    }
+    next(err)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
