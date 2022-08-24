@@ -87,11 +87,28 @@ app.route("/api/notes/:id")
                 next(err)
             })
     })
-    .delete((req, res) => {
-        const id = Number(req.params.id)
-        notes = notes.filter(note => note.id !== id)
+    .delete((req, res, next) => {
+        const id = req.params.id
+        Note.findByIdAndRemove(id)
+            .then(result => {
+                res.status(204).end()
+            })
+            .catch(err => next(err))
+    })
+    .put((req, res, next) => {
+        const id = req.params.id
+        const body = req.body
 
-        res.status(204).end()
+        const note = {
+            content: body.content,
+            important: body.important
+        }
+
+        Note.findByIdAndUpdate(id, note, {new: true})
+            .then(updatedNote => {
+                res.json(updatedNote)
+            })
+            .catch(err => next(err))
     })
 
 const errorHandler = (err, req, res, next) => {
